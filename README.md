@@ -8,7 +8,7 @@ An independent, creator-friendly interface for **MiniMax H3 video with native au
 
 ## See it in action
 
-These are two separate 15-second reference-mode generations with native audio. Both used the 1280 × 704 canvas, 24 fps, 20 sampling steps, and **no LoRAs**. Their prompts differ, so they are examples of each method, **not** a controlled speed or quality comparison. The render method was confirmed from each original MP4's embedded ComfyUI graph.
+Two renders of the same comedy-club scene and dialogue: **Spectrum** and **MotionCache**. Both are 15 seconds with native audio, 1280 × 704 at 24 fps, 20 steps, and **no LoRAs**. Watch the clips and compare the results.
 
 | Spectrum | MotionCache |
 | --- | --- |
