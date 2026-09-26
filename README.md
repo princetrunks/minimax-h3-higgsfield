@@ -1,10 +1,10 @@
-# H3 Higgsfield
+# H3 Higgsfield — MiniMax H3 video studio
 
 An independent, creator-friendly interface for **MiniMax H3 video with native audio**. ComfyUI runs behind the page; creators work with scenes, references, settings, a queue, and a video library instead of a node canvas. This project is not affiliated with Higgsfield.
 
 ![H3 Higgsfield reference-mode interface with a generated video](docs/demo/interface-references.png)
 
-**[Watch the Spectrum demo](docs/demo/spectrum-no-lora.mp4)** · **[Watch the MotionCache demo](docs/demo/motioncache-no-lora.mp4)** · **[Install](#install-on-an-nvidia-linux-server)** · **[Ask a question](https://github.com/underworldhistory1-ctrl/h3-higgsfield/discussions)**
+**[Watch the Spectrum demo](docs/demo/spectrum-no-lora.mp4)** · **[Watch the MotionCache demo](docs/demo/motioncache-no-lora.mp4)** · **[Install](#install-on-an-nvidia-linux-server)** · **[Ask a question](https://github.com/underworldhistory1-ctrl/minimax-h3-higgsfield/discussions)**
 
 ## See it in action
 
@@ -44,8 +44,8 @@ The published MP4s retain their video and audio streams; private prompt metadata
 Requires a working NVIDIA driver, Python 3, and room for roughly **63.4 GB of H3 weights** plus dependencies and outputs; 100 GB free is recommended for a first setup. An RTX 5090 with 32 GB VRAM is the tested configuration. An empty disk cannot be ready in seconds because the models must download.
 
 ```bash
-git clone https://github.com/underworldhistory1-ctrl/h3-higgsfield.git
-cd h3-higgsfield
+git clone https://github.com/underworldhistory1-ctrl/minimax-h3-higgsfield.git
+cd minimax-h3-higgsfield
 bash install.sh
 ```
 
@@ -63,6 +63,6 @@ This evidence does not guarantee every prompt, LoRA combination, speed method, o
 
 ## Feedback
 
-Share a render or ask a setup question in [Discussions](https://github.com/underworldhistory1-ctrl/h3-higgsfield/discussions). Report a reproducible problem in [Issues](https://github.com/underworldhistory1-ctrl/h3-higgsfield/issues), with the ComfyUI revision, GPU, selected mode, render method, and the error message. Remove access tokens and private prompts before posting logs.
+Share a render or ask a setup question in [Discussions](https://github.com/underworldhistory1-ctrl/minimax-h3-higgsfield/discussions). Report a reproducible problem in [Issues](https://github.com/underworldhistory1-ctrl/minimax-h3-higgsfield/issues), with the ComfyUI revision, GPU, selected mode, render method, and the error message. Remove access tokens and private prompts before posting logs.
 
 Built on [ComfyUI](https://github.com/Comfy-Org/ComfyUI) and [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3). This repository's code is MIT-licensed; demo media, model weights, and third-party nodes have separate rights and licenses.

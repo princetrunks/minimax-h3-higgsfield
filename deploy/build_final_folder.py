@@ -18,7 +18,7 @@ SOURCE_FILES = (
     "deploy/backup_h3_library.py", "deploy/restore_h3_library.py",
     "deploy/build_final_folder.py", "deploy/CLOUD_BOOTSTRAP_AR.md",
     "scripts/verify_h3_video.py", "docs/UX_FLOW.md", "docs/GRAPH_MAP.md",
-    "docs/FINAL_AUDIT_AR.md", "docs/COMPATIBILITY_MATRIX_AR.md",
+    "docs/FINAL_AUDIT_AR.md", "docs/COMPATIBILITY_MATRIX_AR.md", "docs/social-preview.png",
     "docs/demo/interface-references.png", "docs/demo/interface-motioncache.png",
     "docs/demo/spectrum-preview.jpg", "docs/demo/motioncache-preview.jpg",
     "docs/demo/spectrum-no-lora.mp4", "docs/demo/motioncache-no-lora.mp4",
