@@ -302,6 +302,7 @@ function renderLoras() {
   const list=$("loraList");list.replaceChildren();
   const count=state.loras.length;
   $("loraCount").textContent=count?"("+count+" installed)":"";
+  $("loraRecommendation").hidden=!(state.loras.some(item=>item.enabled)||method()==="turbo");
   renderMethodInfo();
   if(!count){const empty=document.createElement("div");empty.className="tip";empty.textContent="No LoRAs found in ComfyUI/models/loras.";list.append(empty);return;}
   state.loras.forEach(item=>{
@@ -340,6 +341,7 @@ async function loadLoras(){
   }catch{
     state.lorasLoaded=false;
     $("loraList").innerHTML="<div class='tip'>Connect ComfyUI to see installed LoRAs.</div>";
+    $("loraRecommendation").hidden=true;
   }
 }
 $("refreshLoras").onclick=loadLoras;

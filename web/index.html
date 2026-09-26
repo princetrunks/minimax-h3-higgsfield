@@ -34,6 +34,7 @@
 .refmeta{max-width:100%}
 .ref-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
 .ref-fields>div,.ref-fields input,.ref-fields select{min-width:0;max-width:100%}
+.lora-recommendation{margin-top:10px;padding:10px 11px;border:1px solid #657929;border-radius:8px;background:#292f1c;color:#dfe8c8;font-size:11px;line-height:1.5}.lora-recommendation strong{display:block;color:var(--acid);font-size:11px;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -77,6 +78,7 @@
     <div id="loraList" class="refs"><div class="tip">Connect ComfyUI to load installed LoRAs.</div></div>
     <button id="refreshLoras" class="button alt smallbtn" type="button" style="margin-top:9px">Refresh LoRAs</button>
     <div class="tip">Realism People supports all three modes; start prompts with r34l1sm. Combat V2 was fully tested by its creator on FL2VA only; use it in Text or Frames mode. Both are optional and off by default. The prepared FL2VA Turbo adapter is controlled by Render method and is unavailable in References mode.</div>
+    <div id="loraRecommendation" class="lora-recommendation" role="note" hidden><strong>Recommended when using LoRAs</strong>For the highest quality, choose <b>Native detail (max canvas)</b> and <b>Original quality</b> under Render method. This uses the full MiniMax H3 path; the LoRA may still change the result.</div>
    </section>
    <section class="panel">
     <h2>Output settings</h2><p>These are actual H3 Base canvas sizes. Smaller canvases have less image detail.</p>
@@ -106,6 +108,6 @@
  </section>
 </main>
 <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle"><div class="settings-head"><h2 id="settingsTitle">Video settings</h2><button id="settingsClose" class="button alt smallbtn" type="button" aria-label="Close settings">✕ Close</button></div><div id="settingsContent"></div></dialog>
-<script src="./studio.js?v=20260926-result-guard-2"></script>
+<script src="./studio.js?v=20260926-lora-recommendation"></script>
 </body>
 </html>
