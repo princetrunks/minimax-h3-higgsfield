@@ -2,6 +2,28 @@
 
 An independent, creator-friendly interface for **MiniMax H3 video with native audio**. ComfyUI runs behind the page; creators work with scenes, references, settings, a queue, and a video library instead of a node canvas. This project is not affiliated with Higgsfield.
 
+![H3 Higgsfield reference-mode interface with a generated video](docs/demo/interface-references.png)
+
+**[Watch the Spectrum demo](docs/demo/spectrum-no-lora.mp4)** · **[Watch the MotionCache demo](docs/demo/motioncache-no-lora.mp4)** · **[Install](#install-on-an-nvidia-linux-server)**
+
+## See it in action
+
+These are two separate 15-second reference-mode generations with native audio. Both used the 1280 × 704 canvas, 24 fps, 20 sampling steps, and **no LoRAs**. Their prompts differ, so they are examples of each method, **not** a controlled speed or quality comparison. The render method was confirmed from each original MP4's embedded ComfyUI graph.
+
+| Spectrum | MotionCache |
+| --- | --- |
+| [![Spectrum video preview](docs/demo/spectrum-preview.jpg)](docs/demo/spectrum-no-lora.mp4) | [![MotionCache video preview](docs/demo/motioncache-preview.jpg)](docs/demo/motioncache-no-lora.mp4) |
+| [Watch with audio](docs/demo/spectrum-no-lora.mp4) | [Watch with audio](docs/demo/motioncache-no-lora.mp4) |
+
+The published MP4s retain their video and audio streams; private prompt metadata was removed.
+
+<details>
+<summary>See the MotionCache settings and live render progress</summary>
+
+![MotionCache selected in the H3 interface during generation](docs/demo/interface-motioncache.png)
+
+</details>
+
 ## What you get
 
 | Mode | Input | H3 path |
@@ -31,7 +53,7 @@ The installer finds an existing ComfyUI or installs the verified H3-capable revi
 
 For a different ComfyUI location, use `bash install.sh --comfy-root /path/to/ComfyUI`. The default new installation binds to `127.0.0.1:8188`; reach it through an SSH tunnel or an authenticated cloud proxy. Only use `--bind 0.0.0.0` behind access control. Once ready, open `/extensions/h3_studio/index.html` at your server address. The server root also redirects to this page; the Comfy node editor is reserved for maintenance at `/?view=nodes`.
 
-Model downloads can require accepting the [MiniMax H3 license](https://huggingface.co/MiniMaxAI/MiniMax-H3) or Hugging Face access. The model weights, your reference files, saved videos, and server passwords are **not** in this Git repository. Re-running the installer checks and reuses valid cached weights. For a portable handoff or optional video-library restore, see [the server guide](deploy/CLOUD_BOOTSTRAP_AR.md).
+Model downloads can require accepting the [MiniMax H3 license](https://huggingface.co/MiniMaxAI/MiniMax-H3) or Hugging Face access. The model weights, private reference files, personal video library, and server passwords are **not** in this Git repository; only the two public demo clips above are included. Re-running the installer checks and reuses valid cached weights. For a portable handoff or optional video-library restore, see [the server guide](deploy/CLOUD_BOOTSTRAP_AR.md).
 
 ## What has been verified
 
@@ -39,4 +61,4 @@ On the project's RTX 5090 server, Original mode produced a short clip and a 15.1
 
 This evidence does not guarantee every prompt, LoRA combination, speed method, or a new GPU image. A video reference guides **new generation**; it is not a pixel-locked one-object edit. Exact local editing needs a separate masked inpainting workflow, which this UI does not claim to provide.
 
-Built on [ComfyUI](https://github.com/Comfy-Org/ComfyUI) and [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3). This repository's code is MIT-licensed; model and third-party node licenses apply separately.
+Built on [ComfyUI](https://github.com/Comfy-Org/ComfyUI) and [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3). This repository's code is MIT-licensed; demo media, model weights, and third-party nodes have separate rights and licenses.
