@@ -19,6 +19,9 @@ SOURCE_FILES = (
     "deploy/build_final_folder.py", "deploy/CLOUD_BOOTSTRAP_AR.md",
     "scripts/verify_h3_video.py", "docs/UX_FLOW.md", "docs/GRAPH_MAP.md",
     "docs/FINAL_AUDIT_AR.md", "docs/COMPATIBILITY_MATRIX_AR.md",
+    "docs/demo/interface-references.png", "docs/demo/interface-motioncache.png",
+    "docs/demo/spectrum-preview.jpg", "docs/demo/motioncache-preview.jpg",
+    "docs/demo/spectrum-no-lora.mp4", "docs/demo/motioncache-no-lora.mp4",
     "workflows/h3_t2v_ui.json", "workflows/h3_t2v_api.json",
     "workflows/h3_t2v_smoke_ui.json", "workflows/h3_t2v_smoke_api.json",
 )
