@@ -1,0 +1,13 @@
+[Unit]
+Description=ComfyUI idle VRAM release
+After=comfyui.service
+BindsTo=comfyui.service
+
+[Service]
+Type=simple
+ExecStart=/path/to/venv/bin/python /path/to/vram_watchdog.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

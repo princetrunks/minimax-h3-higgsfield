@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+settings.json
+.env
+.env.*
+.venv/
+venv/
+*.log
+*.pid
+*.zip
+*.safetensors
+output/
+input/
+models/
+H3-Studio-Final/
+H3-Higgsfield-Final/
+# fetched from MiniMax at setup, not redistributed (custom licence)
+corpus/VIDEO_PROMPT_WRITING_GUIDE_*.md
+corpus/MiniMax-H3-README.md
+corpus/minimax_scripts/
+corpus/examples.json
+corpus/pairs.json

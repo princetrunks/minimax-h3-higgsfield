@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""Build one immutable, credential-free H3 Studio handoff folder and zip."""
+
+import argparse
+import hashlib
+import json
+import pathlib
+import shutil
+import zipfile
+
+
+SOURCE_FILES = (
+    "AGENTS.md", "START_HERE_AR.md", "LICENSE", "README.md", "install.sh", "__init__.py",
+    "web/index.html", "web/studio.js",
+    "deploy/bootstrap_h3_server.sh", "deploy/download_h3_models.sh",
+    "deploy/download_optional_loras.py", "deploy/make_h3_landing.py",
+    "deploy/provision_h3.py", "deploy/activate_h3.py", "deploy/verify_h3_server.py",
+    "deploy/backup_h3_library.py", "deploy/restore_h3_library.py",
+    "deploy/build_final_folder.py", "deploy/CLOUD_BOOTSTRAP_AR.md",
+    "scripts/verify_h3_video.py", "docs/UX_FLOW.md", "docs/GRAPH_MAP.md",
+    "docs/FINAL_AUDIT_AR.md", "docs/COMPATIBILITY_MATRIX_AR.md",
+    "workflows/h3_t2v_ui.json", "workflows/h3_t2v_api.json",
+    "workflows/h3_t2v_smoke_ui.json", "workflows/h3_t2v_smoke_api.json",
+)
+
+
+def sha256(path):
+    h = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(4 * 1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", required=True, type=pathlib.Path)
+    parser.add_argument("--library-backup", type=pathlib.Path)
+    parser.add_argument("--update", action="store_true", help="Refresh an existing H3 Studio release without deleting it")
+    args = parser.parse_args()
+    source = pathlib.Path(__file__).resolve().parent.parent
+    output = args.output.resolve()
+    if output.exists():
+        manifest_path = output / "MANIFEST_SHA256.json"
+        if not args.update or not output.is_dir() or not manifest_path.is_file():
+            parser.error(f"Output already exists; choose a new path or use --update: {output}")
+        try:
+            existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            parser.error("Existing release manifest is unreadable")
+        if existing.get("project") != "H3 Studio":
+            parser.error("Existing folder is not a H3 Studio release")
+    missing = [name for name in SOURCE_FILES if not (source / name).is_file()]
+    if missing:
+        parser.error("Missing source files: " + ", ".join(missing))
+    if args.library_backup and not args.library_backup.is_file():
+        parser.error(f"Library backup not found: {args.library_backup}")
+
+    source_target = output / "source" / "h3-studio-src"
+    source_target.mkdir(parents=True, exist_ok=True)
+    for name in SOURCE_FILES:
+        target = source_target / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / name, target)
+    for original, target in (
+        (source / "AGENTS.md", output / "AGENTS.md"),
+        (source / "START_HERE_AR.md", output / "START_HERE_AR.md"),
+        (source / "deploy/provision_h3.py", output / "provision_h3.py"),
+        (source / "deploy/verify_h3_server.py", output / "verify_h3_server.py"),
+    ):
+        shutil.copy2(original, target)
+    (output / "requirements-installer.txt").write_text("paramiko>=3.4,<5\n", encoding="utf-8")
+
+    cloud_zip = output / "h3-cloud-setup.zip"
+    with zipfile.ZipFile(cloud_zip, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for name in SOURCE_FILES:
+            archive.write(source_target / name, "h3-studio-src/" + name)
+    with zipfile.ZipFile(cloud_zip) as archive:
+        if archive.testzip() is not None:
+            raise SystemExit("Corrupt setup archive")
+
+    if args.library_backup:
+        shutil.copy2(args.library_backup, output / "library-backup.zip")
+        with zipfile.ZipFile(args.library_backup) as archive:
+            snapshot = json.loads(archive.read("snapshot.json"))
+        (output / "LIBRARY_SNAPSHOT_AR.md").write_text(
+            "# لقطة مكتبة الفيديوهات\n\n"
+            f"عدد الفيديوهات المكتملة في اللقطة: **{snapshot.get('video_count', 0)}**. "
+            f"وقت أخذها UTC: `{snapshot.get('created_at_utc', 'غير مسجل')}`.\n\n"
+            "تحتوي اللقطة الفيديوهات وملفات الإعدادات/التوقيت والمفضلة؛ لا تحتوي أي رندر "
+            "كان ما زال شغالًا وقت أخذها. لاستعادتها على خادم جديد أضف "
+            "`--library-backup library-backup.zip` لأمر `provision_h3.py`. "
+            "سيضيف الملفات الناقصة فقط، ولن يستبدل فيديو موجودًا مختلفًا.\n",
+            encoding="utf-8",
+        )
+    files = sorted(p for p in output.rglob("*")
+                   if p.is_file() and p.name != "MANIFEST_SHA256.json")
+    manifest = {
+        "project": "H3 Studio", "release": "2026-09-25-final",
+        "tested_gpu": "NVIDIA GeForce RTX 5090, 32 GB",
+        "tested_comfy_revision": "73c9bad4d21e7addbe1d13bc92eee0f1431b017d",
+        "spectrum_revision": "5161f0457bc8c52535212d6783eee73f439e1537",
+        "motioncache_revision": "bc2894102b2486661884371259a27080b0b137bf",
+        "contains_model_weights": False,
+        "files": {p.relative_to(output).as_posix(): {"bytes": p.stat().st_size, "sha256": sha256(p)}
+                  for p in files},
+    }
+    (output / "MANIFEST_SHA256.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    outer = output.with_suffix(".zip")
+    with zipfile.ZipFile(outer, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
+        for file in sorted(p for p in output.rglob("*") if p.is_file()):
+            archive.write(file, output.name + "/" + file.relative_to(output).as_posix())
+    with zipfile.ZipFile(outer) as archive:
+        if archive.testzip() is not None:
+            raise SystemExit("Corrupt final archive")
+    print(f"FINAL_FOLDER_OK files={len(files)} folder={output} archive={outer} archive_sha256={sha256(outer)}")
+
+
+if __name__ == "__main__":
+    main()

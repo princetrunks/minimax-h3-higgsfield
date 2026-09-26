@@ -1,0 +1,31 @@
+# Append to /path/to/llm/llama-swap/config.yaml under `models:` once the
+# download finishes, then: systemctl --user restart llama-swap (or your unit).
+#
+# Gemma-4-26B-A4B ultra-uncensored-heretic, Q8_0 (~26.9 GB). MoE with only 4B
+# active, so the expert FFNs run on CPU while attention and KV stay on the GPU
+# — the same shape as the existing qwen3.6-a3b entry.
+#
+# ttl is deliberately short: H3 needs ~15.5 GB and cannot share the card, so
+# this must release promptly rather than sit resident like gemma4-12b.
+#
+# --cpu-moe puts ALL experts on CPU, which is the guaranteed fit. Once it runs,
+# swap to --n-cpu-moe N and lower N while VRAM headroom allows, for more speed.
+#
+# --mmproj adds the vision tower so the prompt assistant can see keyframe and
+# subject photos (H3 Studio sends them automatically; without the tower it
+# falls back to text-only and says so). The projector is the STOCK
+# gemma-4-26B-A4B-it tower — abliteration does not touch the vision stack:
+#   hf download ggml-org/gemma-4-26B-A4B-it-GGUF mmproj-gemma-4-26B-A4B-it-Q8_0.gguf
+# Measured cost on a 16 GB card: ~8.0 GB resident vs ~7.9 GB text-only.
+
+  "gemma4-a4b":
+    cmd: |
+      /path/to/llm/src/llama.cpp/build/bin/llama-server
+      -m /path/to/llm/models/gemma-4-26B-A4B-it-ultra-uncensored-heretic.Q8_0.gguf
+      --mmproj /path/to/llm/models/mmproj-gemma-4-26B-A4B-it-Q8_0.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl 99 --cpu-moe
+      -c 16384 --parallel 1
+      -fa on --cache-type-k f16 --cache-type-v f16
+      --jinja
+    ttl: 240
