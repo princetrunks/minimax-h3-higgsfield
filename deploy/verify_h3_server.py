@@ -16,7 +16,7 @@ REQUIRED_MODELS = ("fl2va", "ref2va", "text_encoder", "video_vae", "audio_vae")
 REQUIRED_NODES = (
     "UNETLoader", "MiniMaxH3SigmaShift", "CLIPLoader", "VAELoader",
     "MiniMaxH3ImageToVideo", "MiniMaxH3ReferenceToVideo", "KSampler",
-    "VAEDecode", "VAEDecodeAudio", "CreateVideo", "SaveVideo",
+    "VAEDecode", "VAEDecodeAudio", "CreateVideo", "H3SaveVideo",
     "LoadImage", "LoadVideo", "GetVideoComponents", "LoadAudio",
     "LoraLoaderModelOnly", "SpectrumApplyMiniMaxH3", "MiniMaxH3MotionCache",
 )

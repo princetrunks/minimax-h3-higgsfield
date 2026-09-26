@@ -27,10 +27,11 @@ from aiohttp import web
 
 import folder_paths
 from server import PromptServer
+from .h3_video_save import H3SaveVideo
 
 
-NODE_CLASS_MAPPINGS = {}
-NODE_DISPLAY_NAME_MAPPINGS = {}
+NODE_CLASS_MAPPINGS = {"H3SaveVideo": H3SaveVideo}
+NODE_DISPLAY_NAME_MAPPINGS = {"H3SaveVideo": "H3 Save Video"}
 WEB_DIRECTORY = "./web"
 
 PREFIX = "h3_studio"          # only files starting with this are ever touched
@@ -651,7 +652,7 @@ async def readiness(request):
         "UNETLoader", "MiniMaxH3SigmaShift", "CLIPLoader", "VAELoader",
         "MiniMaxH3ImageToVideo", "MiniMaxH3ReferenceToVideo",
         "ConditioningZeroOut", "KSampler", "VAEDecode", "VAEDecodeAudio",
-        "CreateVideo", "SaveVideo", "LoadImage", "LoadVideo",
+        "CreateVideo", "H3SaveVideo", "SaveVideo", "LoadImage", "LoadVideo",
         "GetVideoComponents", "LoadAudio", "LoraLoaderModelOnly",
         "SpectrumApplyMiniMaxH3", "MiniMaxH3MotionCache",
     )

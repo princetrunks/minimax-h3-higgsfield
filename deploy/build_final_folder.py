@@ -10,7 +10,7 @@ import zipfile
 
 
 SOURCE_FILES = (
-    "AGENTS.md", "START_HERE_AR.md", "LICENSE", "README.md", "install.sh", "install.ps1", "__init__.py",
+    "AGENTS.md", "START_HERE_AR.md", "LICENSE", "README.md", "install.sh", "install.ps1", "__init__.py", "h3_video_save.py",
     "web/index.html", "web/studio.js",
     "deploy/bootstrap_h3_server.sh", "deploy/download_h3_models.sh",
     "deploy/download_h3_models.py", "deploy/install_windows.py",

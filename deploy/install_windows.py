@@ -23,7 +23,7 @@ SPEED_NODES = (
      "bc2894102b2486661884371259a27080b0b137bf"),
 )
 RUNTIME_FILES = (
-    "__init__.py", "LICENSE", "README.md", "web/index.html", "web/studio.js",
+    "__init__.py", "h3_video_save.py", "LICENSE", "README.md", "web/index.html", "web/studio.js",
     "workflows/h3_t2v_ui.json", "workflows/h3_t2v_api.json",
     "workflows/h3_t2v_smoke_ui.json", "workflows/h3_t2v_smoke_api.json",
     "scripts/verify_h3_video.py", "deploy/activate_h3.py",
@@ -90,6 +90,18 @@ def ffmpeg_tools():
                             break
     if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
         raise RuntimeError("FFmpeg and FFprobe are required. Install Gyan.FFmpeg with winget, open a new terminal, and rerun.")
+
+
+def verify_ffmpeg_encoders():
+    output = call(shutil.which("ffmpeg"), "-hide_banner", "-encoders", capture=True)
+    available = set()
+    for line in output.splitlines():
+        fields = line.split()
+        if len(fields) >= 2 and fields[0].startswith(("V", "A")):
+            available.add(fields[1])
+    missing = {"libx264", "aac"} - available
+    if missing:
+        raise RuntimeError("The installed FFmpeg lacks required MP4 encoders: " + ", ".join(sorted(missing)))
 
 
 def resolve_root(raw):
@@ -212,7 +224,7 @@ def copy_runtime(root):
             raise RuntimeError("Existing custom_nodes/h3_studio is not a recognizable H3 install; not overwriting it")
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S-%f")
         backup = target / ".h3-backup" / stamp
-        for name in ("__init__.py", "web/index.html", "web/studio.js"):
+        for name in ("__init__.py", "h3_video_save.py", "web/index.html", "web/studio.js"):
             old = target / name
             if old.is_file():
                 saved = backup / name
@@ -281,6 +293,12 @@ def preflight(args):
                                    r"C:\Program Files (x86)\Git\cmd\git.exe"))) or "missing")
     print("FFmpeg:", shutil.which("ffmpeg") or "missing")
     print("FFprobe:", shutil.which("ffprobe") or "missing")
+    if shutil.which("ffmpeg"):
+        try:
+            verify_ffmpeg_encoders()
+            print("MP4 encoders: H.264 and AAC available")
+        except (OSError, RuntimeError) as exc:
+            print("MP4 encoders:", exc)
     print("ComfyUI:", root if (root / "main.py").is_file() else "not found at " + str(root))
     if (root / "main.py").is_file():
         native = root / "comfy_extras" / "nodes_minimax_h3.py"
@@ -329,6 +347,7 @@ def main():
     call(nvidia_smi, "-L")
     git = git_executable()
     ffmpeg_tools()
+    verify_ffmpeg_encoders()
     root = resolve_root(args.comfy_root)
     url = f"http://127.0.0.1:{args.port}"
     status = queue_status(url)

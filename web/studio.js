@@ -604,7 +604,7 @@ function graph(prompt,uploads,token) {
     "9":{class_type:"VAEDecode",inputs:{samples:["8",0],vae:["4",0]}},
     "10":{class_type:"VAEDecodeAudio",inputs:{samples:["8",0],vae:["5",0]}},
     "11":{class_type:"CreateVideo",inputs:{images:["9",0],fps:24,audio:["10",0]}},
-    "12":{class_type:"SaveVideo",inputs:{video:["11",0],filename_prefix:"video/h3_studio_"+token,format:"mp4"}},
+    "12":{class_type:"H3SaveVideo",inputs:{video:["11",0],filename_prefix:"video/h3_studio_"+token}},
   };
   let modelLink=["1",0];
   state.loras.filter(item=>item.enabled).forEach((item,index)=>{
@@ -875,7 +875,7 @@ async function checkConnection() {
       await loadLoras();
       const required=state.mode==="refs"?["ref2va","text_encoder","video_vae","audio_vae"]:["fl2va","text_encoder","video_vae","audio_vae"];
       const missing=required.filter(name=>!state.modelsReady[name]);
-      const baseNodes=["UNETLoader","MiniMaxH3SigmaShift","CLIPLoader","VAELoader","ConditioningZeroOut","KSampler","VAEDecode","VAEDecodeAudio","CreateVideo","SaveVideo"];
+      const baseNodes=["UNETLoader","MiniMaxH3SigmaShift","CLIPLoader","VAELoader","ConditioningZeroOut","KSampler","VAEDecode","VAEDecodeAudio","CreateVideo","H3SaveVideo"];
       const modeNodes=state.mode==="refs"?["MiniMaxH3ReferenceToVideo"]:["MiniMaxH3ImageToVideo"];
       if(state.mode==="frames")modeNodes.push("LoadImage");
       if(state.mode==="refs"){

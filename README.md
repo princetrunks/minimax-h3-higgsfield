@@ -36,6 +36,7 @@ The published MP4s retain their video and audio streams; private prompt metadata
 - Video references at other frame rates are converted to **24 fps** on upload; their playback speed and available soundtrack are retained. H3's combined video-reference limit is 15 seconds.
 - Original quality by default. Spectrum, MotionCache, and the FL2VA Turbo LoRA are prepared as separate, optional choices; they can change the result. Installed LoRAs appear as optional switches.
 - Native video and audio come from the same H3 sample. Audio is checked after saving; listening remains the final check.
+- The H3 save node writes MP4 with H.264 and AAC; if PyAV fails to encode, it retries through the installed FFmpeg without rerunning the model.
 - Upload and render progress, a changing time estimate, a queue, thumbnails, saved settings for each clip, and a library that survives page refreshes.
 - Input videos cannot be mistaken for completed outputs: the UI accepts a result only from the Save Video node after the file appears on the server.
 

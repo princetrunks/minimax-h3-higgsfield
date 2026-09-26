@@ -130,14 +130,13 @@
     }
   },
   "12": {
-    "class_type": "SaveVideo",
+    "class_type": "H3SaveVideo",
     "inputs": {
       "video": [
         "11",
         0
       ],
-      "filename_prefix": "video/h3_t2v",
-      "format": "mp4"
+      "filename_prefix": "video/h3_t2v"
     }
   }
 }

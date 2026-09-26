@@ -464,7 +464,7 @@
     },
     {
       "id": 12,
-      "type": "SaveVideo",
+      "type": "H3SaveVideo",
       "pos": [
         1340,
         360
@@ -485,12 +485,10 @@
       ],
       "outputs": [],
       "properties": {
-        "Node name for S&R": "SaveVideo"
+        "Node name for S&R": "H3SaveVideo"
       },
       "widgets_values": [
-        "video/h3_t2v_smoke",
-        "auto",
-        "auto"
+        "video/h3_t2v_smoke"
       ]
     }
   ],

@@ -40,7 +40,7 @@ COMFY_ROOT="$(cd "$COMFY_ROOT" && pwd)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 RUNTIME_FILES=(
-    __init__.py LICENSE README.md
+    __init__.py h3_video_save.py LICENSE README.md
     web/index.html web/studio.js
     workflows/h3_t2v_ui.json workflows/h3_t2v_api.json
     workflows/h3_t2v_smoke_ui.json workflows/h3_t2v_smoke_api.json
@@ -68,6 +68,13 @@ if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1 \
         exit 1
     fi
 fi
+encoder_list="$(ffmpeg -hide_banner -encoders 2>/dev/null)"
+for encoder in libx264 aac; do
+    if ! grep -Eq "^[[:space:]]+[VA][^[:space:]]*[[:space:]]+${encoder}[[:space:]]" <<< "$encoder_list"; then
+        echo "FFmpeg is missing the ${encoder} encoder required to save H3 MP4 with audio." >&2
+        exit 1
+    fi
+done
 
 if [[ -n "${COMFY_PYTHON:-}" && -x "${COMFY_PYTHON}" ]]; then
     H3_PYTHON="$COMFY_PYTHON"

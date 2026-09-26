@@ -15,7 +15,7 @@ The user-facing app is `web/index.html` + `web/studio.js`. Keep these files byte
 | 8 | `KSampler` | Positive and latent from node 6, negative from node 7, model from node 2 or optional speed patch |
 | 9 / 10 | `VAEDecode` / `VAEDecodeAudio` | Decode video and audio from the **same** sampler samples |
 | 11 | `CreateVideo` | The decoded video frames plus decoded native audio, 24 fps |
-| 12 | `SaveVideo` | `format: mp4`, prefix `video/h3_studio_<token>`; no optional codec value is sent |
+| 12 | `H3SaveVideo` | MP4/H.264 with audio; retries through FFmpeg if PyAV fails, prefix `video/h3_studio_<token>` |
 
 The Original method uses 20 steps by default with `res_multistep`, `simple`, CFG 1, denoise 1. The UI offers 124/175/226/294/362 frames, canvas sizes 1344×768, 1280×704, 1024×576, 864×480, and a practical 20–100 step input. The Turbo path uses 4–8 steps, default 6.
 
