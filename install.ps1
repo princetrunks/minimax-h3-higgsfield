@@ -29,8 +29,13 @@ if (-not $hostPython) {
     if ($launcher) {
         $hostPython = $launcher.Source
         foreach ($version in @("-3.13", "-3.12", "-3")) {
-            & $hostPython $version -c "import sys" 2>$null
-            if ($LASTEXITCODE -eq 0) { $prefix = @($version); break }
+            try {
+                & $hostPython $version -c "import sys" 2>$null
+                if ($LASTEXITCODE -eq 0) { $prefix = @($version); break }
+            } catch {
+                # The Python launcher reports an unavailable version on stderr.
+                continue
+            }
         }
         if ($prefix.Count -eq 0) { $hostPython = $null }
     }
