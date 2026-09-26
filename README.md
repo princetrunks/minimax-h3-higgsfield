@@ -4,7 +4,7 @@ An independent, creator-friendly interface for **MiniMax H3 video with native au
 
 ![H3 Higgsfield reference-mode interface with a generated video](docs/demo/interface-references.png)
 
-**[Watch the Spectrum demo](docs/demo/spectrum-no-lora.mp4)** · **[Watch the MotionCache demo](docs/demo/motioncache-no-lora.mp4)** · **[Install](#install-on-an-nvidia-linux-server)**
+**[Watch the Spectrum demo](docs/demo/spectrum-no-lora.mp4)** · **[Watch the MotionCache demo](docs/demo/motioncache-no-lora.mp4)** · **[Install](#install-on-an-nvidia-linux-server)** · **[Ask a question](https://github.com/underworldhistory1-ctrl/h3-higgsfield/discussions)**
 
 ## See it in action
 
@@ -60,5 +60,9 @@ Model downloads can require accepting the [MiniMax H3 license](https://huggingfa
 On the project's RTX 5090 server, Original mode produced a short clip and a 15.1-second clip with decodable video and audio. A 25 fps clip with audio was accepted as a reference, converted to 24 fps, and cleaned up afterward. The interface's three modes map to their intended H3 nodes, and output files are checked before being shown as complete. The [compatibility map](docs/COMPATIBILITY_MATRIX_AR.md) and [workflow map](docs/GRAPH_MAP.md) record the boundaries.
 
 This evidence does not guarantee every prompt, LoRA combination, speed method, or a new GPU image. A video reference guides **new generation**; it is not a pixel-locked one-object edit. Exact local editing needs a separate masked inpainting workflow, which this UI does not claim to provide.
+
+## Feedback
+
+Share a render or ask a setup question in [Discussions](https://github.com/underworldhistory1-ctrl/h3-higgsfield/discussions). Report a reproducible problem in [Issues](https://github.com/underworldhistory1-ctrl/h3-higgsfield/issues), with the ComfyUI revision, GPU, selected mode, render method, and the error message. Remove access tokens and private prompts before posting logs.
 
 Built on [ComfyUI](https://github.com/Comfy-Org/ComfyUI) and [MiniMax H3](https://huggingface.co/MiniMaxAI/MiniMax-H3). This repository's code is MIT-licensed; demo media, model weights, and third-party nodes have separate rights and licenses.
