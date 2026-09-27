@@ -68,7 +68,7 @@ cd minimax-h3-higgsfield
 bash install.sh
 ```
 
-The Linux installer finds an existing ComfyUI or installs the verified H3-capable revision, checks missing tools and Python packages, reuses or downloads verified model files, prepares the optional nodes and LoRAs, and opens **H3 Higgsfield** as the ComfyUI landing page. Both installers check the queue before restarting an existing server. If the provider's login or process manager blocks an automatic restart, the installer stops with a clear restart instruction rather than claiming the app is ready.
+The Linux installer finds an existing ComfyUI or installs the pinned H3-capable revision containing the September 22 H3 VAE tile-blending fix, checks missing tools and Python packages, reuses or downloads verified model files, prepares the optional nodes and LoRAs, and opens **H3 Higgsfield** as the ComfyUI landing page. Both installers check the queue before restarting an existing server. If the provider's login or process manager blocks an automatic restart, the installer stops with a clear restart instruction rather than claiming the app is ready.
 
 For a different Linux ComfyUI location, use `bash install.sh --comfy-root /path/to/ComfyUI`. Both new installs bind to `127.0.0.1:8188` by default. Reach a remote server through an SSH tunnel or an authenticated cloud proxy; only use `--bind 0.0.0.0` (Linux) or `-Bind 0.0.0.0` (Windows) behind access control. Once ready, open `/extensions/h3_studio/index.html` at your server address. The server root also redirects to this page; the Comfy node editor is reserved for maintenance at `/?view=nodes`.
 
@@ -76,7 +76,9 @@ Model downloads can require accepting the [MiniMax H3 license](https://huggingfa
 
 ## What has been verified
 
-On the project's RTX 5090 server, Original mode produced a short clip and a 15.1-second clip with decodable video and audio. A 25 fps clip with audio was accepted as a reference, converted to 24 fps, and cleaned up afterward. The interface's three modes map to their intended H3 nodes, and output files are checked before being shown as complete. The [compatibility map](docs/COMPATIBILITY_MATRIX_AR.md) and [workflow map](docs/GRAPH_MAP.md) record the boundaries.
+On the project's RTX 5090 server, Original mode produced a short clip and a 15.1-second clip with decodable video and audio. A 25 fps clip with audio was accepted as a reference, converted to 24 fps, and cleaned up afterward. The interface's three modes map to their intended H3 nodes, and output files are checked before being shown as complete. New installs additionally require the upstream H3 VAE tile-blending fix before the UI permits generation. The [compatibility map](docs/COMPATIBILITY_MATRIX_AR.md) and [workflow map](docs/GRAPH_MAP.md) record the boundaries.
+
+DLSS 5 Visual Enhancer is an optional Windows post-processing path and is not installed on Linux cloud servers. The studio first preserves source quality through the corrected H3 VAE, INT8 ConvRot weights, and high-quality MP4 saving; enhancement can be applied later on a compatible Windows RTX machine.
 
 Windows installation is newly supported, but a complete first-time Windows GPU install has not yet been run by this project. The verified render evidence above is from Linux.
 

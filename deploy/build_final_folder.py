@@ -103,6 +103,8 @@ def main():
         "project": "H3 Studio", "release": "2026-09-25-final",
         "tested_gpu": "NVIDIA GeForce RTX 5090, 32 GB",
         "tested_comfy_revision": "73c9bad4d21e7addbe1d13bc92eee0f1431b017d",
+        "prepared_comfy_revision": "fc584aaa226560ccdfe70c2bcfe9424af1adeb04",
+        "h3_vae_tile_fix_pr": 16436,
         "spectrum_revision": "5161f0457bc8c52535212d6783eee73f439e1537",
         "motioncache_revision": "bc2894102b2486661884371259a27080b0b137bf",
         "contains_model_weights": False,

@@ -657,7 +657,13 @@ async def readiness(request):
         "SpectrumApplyMiniMaxH3", "MiniMaxH3MotionCache",
     )
     available = {name: name in nodes.NODE_CLASS_MAPPINGS for name in node_names}
-    return web.json_response({"models": present, "nodes": available})
+    vae_source = pathlib.Path(folder_paths.__file__).resolve().parent / "comfy" / "ldm" / "minimax" / "vae.py"
+    try:
+        vae_tile_fix = "strip[..., :, x_idx[j]:x_idx[j] + x_len[j]]" in vae_source.read_text(encoding="utf-8")
+    except OSError:
+        vae_tile_fix = False
+    return web.json_response({"models": present, "nodes": available,
+                              "quality": {"h3_vae_tile_fix": vae_tile_fix}})
 
 
 @PromptServer.instance.routes.post("/h3_studio/delete_saved")

@@ -871,6 +871,7 @@ async function checkConnection() {
       state.modelsReady=ready.models||{};
       state.nodesReady=ready.nodes||null;
       if(!state.nodesReady)throw Error("Update H3 Higgsfield to check the installed ComfyUI nodes.");
+      if(!ready.quality?.h3_vae_tile_fix)throw Error("Update ComfyUI: the H3 VAE quality fix is missing.");
       state.gpu=data.devices?.[0]?.name||"unknown";
       await loadLoras();
       const required=state.mode==="refs"?["ref2va","text_encoder","video_vae","audio_vae"]:["fl2va","text_encoder","video_vae","audio_vae"];

@@ -7,7 +7,8 @@ COMFY_ROOT=""
 PORT=8188
 BIND=127.0.0.1
 AUTO_START=1
-COMFY_REVISION="73c9bad4d21e7addbe1d13bc92eee0f1431b017d"
+COMFY_REVISION="fc584aaa226560ccdfe70c2bcfe9424af1adeb04"
+H3_VAE_FIX_MARKER='strip[..., :, x_idx[j]:x_idx[j] + x_len[j]]'
 
 usage() {
     cat <<'EOF'
@@ -97,17 +98,21 @@ else
 fi
 
 H3_NODE_FILE="$COMFY_ROOT/comfy_extras/nodes_minimax_h3.py"
-if [[ ! -f "$H3_NODE_FILE" ]] || ! grep -q MiniMaxH3ReferenceToVideo "$H3_NODE_FILE"; then
+H3_VAE_FILE="$COMFY_ROOT/comfy/ldm/minimax/vae.py"
+if [[ ! -f "$H3_NODE_FILE" ]] || ! grep -q MiniMaxH3ReferenceToVideo "$H3_NODE_FILE" \
+        || [[ ! -f "$H3_VAE_FILE" ]] || ! grep -Fq "$H3_VAE_FIX_MARKER" "$H3_VAE_FILE"; then
     if [[ ! -d "$COMFY_ROOT/.git" ]] || [[ -n "$(git -C "$COMFY_ROOT" status --porcelain --untracked-files=no)" ]]; then
-        echo "ComfyUI lacks native H3 nodes and has no clean Git checkout to update safely." >&2
+        echo "ComfyUI lacks the native H3 nodes or the September 22 H3 VAE tile fix, and has no clean Git checkout to update safely." >&2
         exit 1
     fi
-    echo "Updating the older ComfyUI checkout to the verified H3 revision..."
+    echo "Updating ComfyUI to the pinned H3 build with the VAE tile fix..."
     git -C "$COMFY_ROOT" fetch --depth 1 origin "$COMFY_REVISION"
     git -C "$COMFY_ROOT" branch "h3-before-update-$(date +%Y%m%d-%H%M%S)" HEAD
     git -C "$COMFY_ROOT" checkout --detach -q FETCH_HEAD
-    echo "Native H3 nodes are now present; keeping the existing Python environment."
+    echo "Native H3 nodes and the H3 VAE tile fix are now present; keeping the existing Python environment."
 fi
+grep -q MiniMaxH3ReferenceToVideo "$H3_NODE_FILE" || { echo "Pinned ComfyUI lacks the H3 reference node." >&2; exit 1; }
+grep -Fq "$H3_VAE_FIX_MARKER" "$H3_VAE_FILE" || { echo "Pinned ComfyUI lacks the H3 VAE tile fix." >&2; exit 1; }
 
 if [[ -n "${COMFY_PYTHON:-}" && -x "${COMFY_PYTHON}" ]]; then
     H3_PYTHON="$COMFY_PYTHON"

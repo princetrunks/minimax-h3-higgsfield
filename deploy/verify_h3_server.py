@@ -62,18 +62,20 @@ def main():
     queue = read("/queue")
     missing_models = [name for name in REQUIRED_MODELS if not ready.get("models", {}).get(name)]
     missing_nodes = [name for name in REQUIRED_NODES if not ready.get("nodes", {}).get(name)]
+    vae_tile_fix = bool(ready.get("quality", {}).get("h3_vae_tile_fix"))
     names = loras.get("items", [])
     print(json.dumps({
         "gpu": [item.get("name") for item in stats.get("devices", [])],
         "models_ready": not missing_models,
         "missing_models": missing_models,
         "missing_nodes": missing_nodes,
+        "h3_vae_tile_fix": vae_tile_fix,
         "installed_loras": names,
         "video_count": len(library.get("items", [])),
         "running_jobs": len(queue.get("queue_running", [])),
         "pending_jobs": len(queue.get("queue_pending", [])),
     }, indent=2, ensure_ascii=False))
-    if missing_models or missing_nodes:
+    if missing_models or missing_nodes or not vae_tile_fix:
         raise SystemExit(1)
 
 

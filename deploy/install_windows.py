@@ -15,7 +15,8 @@ import webbrowser
 
 
 PROJECT = pathlib.Path(__file__).resolve().parent.parent
-COMFY_REVISION = "73c9bad4d21e7addbe1d13bc92eee0f1431b017d"
+COMFY_REVISION = "fc584aaa226560ccdfe70c2bcfe9424af1adeb04"
+H3_VAE_FIX_MARKER = "strip[..., :, x_idx[j]:x_idx[j] + x_len[j]]"
 SPEED_NODES = (
     ("ComfyUI-Spectrum-MiniMax-H3", "https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3.git",
      "5161f0457bc8c52535212d6783eee73f439e1537"),
@@ -162,10 +163,13 @@ def prepare_comfy(root, git):
 
 def ensure_native_nodes(root, git):
     node_file = root / "comfy_extras" / "nodes_minimax_h3.py"
-    if node_file.is_file() and "MiniMaxH3ReferenceToVideo" in node_file.read_text(encoding="utf-8"):
+    vae_file = root / "comfy" / "ldm" / "minimax" / "vae.py"
+    native_ready = node_file.is_file() and "MiniMaxH3ReferenceToVideo" in node_file.read_text(encoding="utf-8")
+    vae_ready = vae_file.is_file() and H3_VAE_FIX_MARKER in vae_file.read_text(encoding="utf-8")
+    if native_ready and vae_ready:
         return
     if not (root / ".git").is_dir():
-        raise RuntimeError("This ComfyUI Portable build lacks native H3 nodes. Run its official update\\update_comfyui.bat, then rerun. Existing files were not changed.")
+        raise RuntimeError("This ComfyUI Portable build lacks native H3 nodes or the September 22 H3 VAE tile fix. Run its official update\\update_comfyui.bat, then rerun. Existing files were not changed.")
     if call(git, "-C", root, "status", "--porcelain", "--untracked-files=no", capture=True):
         raise RuntimeError("ComfyUI has local source edits; update it manually before installing H3.")
     call(git, "-C", root, "fetch", "--depth", "1", "origin", COMFY_REVISION)
@@ -174,6 +178,8 @@ def ensure_native_nodes(root, git):
     call(git, "-C", root, "checkout", "--detach", "-q", "FETCH_HEAD")
     if not node_file.is_file() or "MiniMaxH3ReferenceToVideo" not in node_file.read_text(encoding="utf-8"):
         raise RuntimeError("Pinned ComfyUI checkout still lacks the H3 reference node")
+    if not vae_file.is_file() or H3_VAE_FIX_MARKER not in vae_file.read_text(encoding="utf-8"):
+        raise RuntimeError("Pinned ComfyUI checkout still lacks the H3 VAE tile fix")
 
 
 def select_python(root, override, fresh):
@@ -303,6 +309,8 @@ def preflight(args):
     if (root / "main.py").is_file():
         native = root / "comfy_extras" / "nodes_minimax_h3.py"
         print("H3 native nodes:", "present" if native.is_file() and "MiniMaxH3ReferenceToVideo" in native.read_text(encoding="utf-8") else "missing")
+        vae = root / "comfy" / "ldm" / "minimax" / "vae.py"
+        print("H3 VAE tile fix:", "present" if vae.is_file() and H3_VAE_FIX_MARKER in vae.read_text(encoding="utf-8") else "missing")
         python, portable = select_python(root, args.comfy_python, False)
         probe = subprocess.run([str(python), "-c",
                                 "import torch, av, aiohttp, PIL, comfyui_frontend_package; assert torch.cuda.is_available(); print(torch.__version__)"],
