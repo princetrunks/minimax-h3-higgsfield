@@ -29,7 +29,9 @@ const mediaRules={
 };
 const modelFL = "minimax_h3_fl2va_pruned_int8_convrot.safetensors";
 const modelRef = "minimax_h3_ref2va_pruned_int8_convrot.safetensors";
-const turboName = "experimental/minimax_h3_fl2v_lightx2v_turbo_4to8step_v0.1-v1.0_768p_v4_step600_dareties.safetensors";
+// forge: map to the local Turbo v4 file (the upstream DARE-TIES merge is not installed here)
+const turboName = "minimax_h3_turbo_v4_step600_ema.safetensors";
+const realismRe = /^(h3-realism-people-t2v-i2v-r2v|h3_realism_people)\.safetensors$/i;
 const methodInfo = {
   native: {title:"Original quality", detail:"Full H3 sampling. No accelerator changes the model trajectory."},
   spectrum: {title:"Spectrum · experimental", detail:"Forecasts some denoiser calls. Faster on some workloads; motion and audio need comparison with Original quality."},
@@ -307,7 +309,7 @@ function renderLoras() {
   if(!count){const empty=document.createElement("div");empty.className="tip";empty.textContent="No LoRAs found in ComfyUI/models/loras.";list.append(empty);return;}
   state.loras.forEach(item=>{
     const combat=/^H3_Combat_V2\.safetensors$/i.test(item.name);
-    const realism=/^h3-realism-people-t2v-i2v-r2v\.safetensors$/i.test(item.name);
+    const realism=realismRe.test(item.name);
     const managed=item.name===turboName;
     const incompatible=!loraModeCompatible(item.name,state.mode);
     const row=document.createElement("div");row.className="ref";
@@ -927,7 +929,7 @@ async function generate() {
     if(!Number.isSafeInteger(seed)||seed<0)throw Error("Use a valid non-negative seed.");
     for(const item of state.loras.filter(x=>x.enabled)){
       if(!Number.isFinite(item.strength)||item.strength<0||item.strength>2)throw Error("LoRA strength must be between 0 and 2.");
-      if(/^h3-realism-people-t2v-i2v-r2v\.safetensors$/i.test(item.name)&&!/(^|\W)r34l1sm(?=\W|$)/i.test($("prompt").value))
+      if(realismRe.test(item.name)&&!/(^|\W)r34l1sm(?=\W|$)/i.test($("prompt").value))
         throw Error("Include the Realism People trigger r34l1sm in your prompt before generating.");
       if(state.mode==="refs"&&/fl2v|fl2va|t2v/i.test(item.name)&&!/ref2v|r2v/i.test(item.name))
         throw Error("LoRA "+item.name+" appears to target FL2VA, not the Ref2VA checkpoint.");
