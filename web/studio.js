@@ -31,6 +31,11 @@ const modelFL = "minimax_h3_fl2va_pruned_int8_convrot.safetensors";
 const modelRef = "minimax_h3_ref2va_pruned_int8_convrot.safetensors";
 // forge: map to the local Turbo v4 file (the upstream DARE-TIES merge is not installed here)
 const turboName = "minimax_h3_turbo_v4_step600_ema.safetensors";
+// Forge (2026-10-02): References get Turbo too, through the Ref2VA adapter our h3-chain recipe runs (4 steps, strength 1.0,
+// stacked on the character + realism LoRAs). Upstream only had the FL2VA adapter, so References was stuck at 20+ steps.
+const refTurboName = "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors";
+const turboFor = (mode) => mode === "refs" ? { name: refTurboName, strength: 1.0 } : { name: turboName, strength: 0.9 };
+const isTurbo = (name) => name === turboName || name === refTurboName;
 const realismRe = /^(h3-realism-people-t2v-i2v-r2v|h3_realism_people)\.safetensors$/i;
 const methodInfo = {
   native: {title:"Original quality", detail:"Full H3 sampling. No accelerator changes the model trajectory."},
@@ -63,6 +68,7 @@ function uploadMessage(message,pct=null){
 }
 function loraModeCompatible(name,mode){
   if(name===turboName)return mode!=="refs";
+  if(name===refTurboName)return mode==="refs";
   if(mode==="refs"){
     if(/^H3_Combat_V2\.safetensors$/i.test(name))return false;
     if(/fl2v|fl2va|t2v/i.test(name)&&!/ref2v|r2v/i.test(name))return false;
@@ -88,7 +94,7 @@ function updateCapabilities(){
 }
 function methodAvailable(value){
   if(value==="native")return true;
-  if(value==="turbo")return state.mode!=="refs"&&state.lorasLoaded&&state.loras.some(item=>item.name===turboName)&&state.nodesReady?.LoraLoaderModelOnly===true;
+  if(value==="turbo")return state.lorasLoaded&&state.loras.some(item=>item.name===turboFor(state.mode).name)&&state.nodesReady?.LoraLoaderModelOnly===true;
   return state.nodesReady?.[value==="spectrum"?"SpectrumApplyMiniMaxH3":"MiniMaxH3MotionCache"]===true;
 }
 function updateMethodAvailability(){
@@ -96,7 +102,7 @@ function updateMethodAvailability(){
   for(const option of select.options){
     option.disabled=!methodAvailable(option.value);
     option.title=option.disabled&&option.value==="turbo"&&state.mode==="refs"?
-      "This installed Turbo adapter targets FL2VA. References uses Ref2VA.":
+      "Install the Ref2VA Turbo adapter ("+refTurboName+") for References.":
       option.disabled?"Install the optional method on this ComfyUI server.":"";
   }
   if(!methodAvailable(select.value)){
@@ -105,7 +111,7 @@ function updateMethodAvailability(){
   }
   const ready=[...select.options].filter(option=>!option.disabled&&option.value!=="native").map(option=>option.textContent.split(" · ")[0]);
   $("methodAvailability").textContent=(state.nodesReady?ready.length?"Ready on this server: "+ready.join(", ")+".":"Original quality is ready. Optional methods are not installed yet.":"Connect ComfyUI to check installed speed methods.")
-    +(state.mode==="refs"&&state.loras.some(item=>item.name===turboName)?" Turbo is FL2VA-only; use Text or Frames.":"");
+    +(state.mode==="refs"&&methodAvailable("turbo")?" References Turbo uses the Ref2VA adapter (4 steps).":"");
   select.disabled=state.busy;
   renderMethodInfo();
 }
@@ -114,7 +120,7 @@ function renderMethodInfo(){
   $("steps").min=value==="turbo"?"4":"20";
   $("steps").max=value==="turbo"?"8":"100";
   $("stepPresets").hidden=value==="turbo";
-  $("stepAdvice").textContent=value==="turbo"?"Turbo adapter: 4–8 steps; 6 is the comparison setting. This changes the generated video and sound. No higher step count makes it equivalent to Original quality.":"20 follows the ComfyUI H3 template. 30 or 50 take longer and are comparison choices, not guaranteed improvements. Studio allows up to 100; ComfyUI KSampler's technical limit is 10,000.";
+  $("stepAdvice").textContent=value==="turbo"?(state.mode==="refs"?"Ref2VA Turbo adapter: 4 steps is the proven forge recipe (with the character + realism LoRAs); up to 8. ":"")+"Turbo adapter: 4–8 steps; 6 is the comparison setting. This changes the generated video and sound. No higher step count makes it equivalent to Original quality.":"20 follows the ComfyUI H3 template. 30 or 50 take longer and are comparison choices, not guaranteed improvements. Studio allows up to 100; ComfyUI KSampler's technical limit is 10,000.";
   document.querySelectorAll("#stepPresets button").forEach(button=>button.classList.toggle("active",Number(button.dataset.steps)===Number($("steps").value)));
   $("profile").replaceChildren();
   const strong=document.createElement("strong");strong.textContent=info.title+(Number.isInteger(steps)&&steps>=Number($("steps").min)&&steps<=Number($("steps").max)?" · "+steps+" steps":" · choose valid steps");
@@ -175,7 +181,7 @@ function restoreDraft(){
   $("prompt").value=state.prompts[state.mode]||"";
   const draftSteps=Number($("steps").value);
   if($("renderMethod").value==="turbo"){
-    if(!Number.isInteger(draftSteps)||draftSteps<4||draftSteps>8)$("steps").value="6";
+    if(!Number.isInteger(draftSteps)||draftSteps<4||draftSteps>8)$("steps").value=state.mode==="refs"?"4":"6";
   }else if(!Number.isInteger(draftSteps)||draftSteps<20||draftSteps>100)$("steps").value="20";
   return state.mode!=="text";
 }
@@ -225,7 +231,7 @@ function sampleKey() {
 function captureSettings(){
   const refs=state.mode==="refs";
   const adapters=state.loras.filter(item=>item.enabled).map(item=>({name:item.name,strength:item.strength}));
-  if(method()==="turbo")adapters.push({name:"H3 Turbo",strength:0.9});
+  if(method()==="turbo")adapters.push({name:state.mode==="refs"?"H3 Ref2VA Turbo":"H3 Turbo",strength:turboFor(state.mode).strength});
   return {
     mode:state.mode,model:refs?"MiniMax H3 Ref2VA":"MiniMax H3 FL2VA",
     canvas:state.width+"×"+state.height,quality:sizes.find(([w,h])=>w===state.width&&h===state.height)?.[2]||"Custom",
@@ -310,7 +316,7 @@ function renderLoras() {
   state.loras.forEach(item=>{
     const combat=/^H3_Combat_V2\.safetensors$/i.test(item.name);
     const realism=realismRe.test(item.name);
-    const managed=item.name===turboName;
+    const managed=isTurbo(item.name);
     const incompatible=!loraModeCompatible(item.name,state.mode);
     const row=document.createElement("div");row.className="ref";
     const main=document.createElement("label");main.style.cssText="display:flex;align-items:center;gap:8px;margin:0;color:var(--text)";
@@ -336,7 +342,7 @@ async function loadLoras(){
     const names=(await r.json()).items||[];
     const existing=new Map(state.loras.map(item=>[item.name,item]));
     state.loras=names.map(name=>existing.get(name)||{name,enabled:false,strength:1});
-    const managed=state.loras.find(item=>item.name===turboName);if(managed)managed.enabled=false;
+    state.loras.filter(item=>isTurbo(item.name)).forEach(item=>{item.enabled=false;});
     state.lorasLoaded=true;
     updateMethodAvailability();
     renderLoras();renderEstimates();
@@ -349,7 +355,7 @@ async function loadLoras(){
 $("refreshLoras").onclick=loadLoras;
 ["duration","steps","refSize"].forEach(id => $(id).addEventListener("change",renderEstimates));
 $("steps").addEventListener("input",()=>{renderMethodInfo();const value=Number($("steps").value);if(Number.isInteger(value)&&value>=Number($("steps").min)&&value<=Number($("steps").max))renderEstimates();else $("estimateNote").textContent="Enter "+$("steps").min+"–"+$("steps").max+" steps to update the estimate.";});
-$("renderMethod").addEventListener("change",()=>{if(method()==="turbo")$("steps").value="6";else if(Number($("steps").value)<20)$("steps").value="20";renderMethodInfo();renderLoras();renderEstimates();saveDraft();});
+$("renderMethod").addEventListener("change",()=>{if(method()==="turbo")$("steps").value=state.mode==="refs"?"4":"6";else if(Number($("steps").value)<20)$("steps").value="20";renderMethodInfo();renderLoras();renderEstimates();saveDraft();});
 document.querySelectorAll("#stepPresets button").forEach(button=>button.onclick=()=>{$("steps").value=button.dataset.steps;renderMethodInfo();renderEstimates();saveDraft();});
 ["prompt","duration","steps","seed","refSize","renderMethod"].forEach(id => $(id).addEventListener("input",saveDraft));
 $("randomSeed").onclick = () => {$("seed").value = Math.floor(Math.random()*2**31);saveDraft();};
@@ -615,7 +621,8 @@ function graph(prompt,uploads,token) {
     modelLink=[id,0];
   });
   if(method()==="turbo"){
-    g["60"]={class_type:"LoraLoaderModelOnly",inputs:{model:modelLink,lora_name:turboName,strength_model:0.9}};
+    const turbo=turboFor(state.mode);
+    g["60"]={class_type:"LoraLoaderModelOnly",inputs:{model:modelLink,lora_name:turbo.name,strength_model:turbo.strength}};
     modelLink=["60",0];
   }
   g["2"].inputs.model=modelLink;
@@ -786,8 +793,8 @@ async function loadHistorySamples(){
       const loras=Object.values(graph).filter(node=>node.class_type==="LoraLoaderModelOnly").map(node=>node.inputs||{});
       const methodName=Object.values(graph).some(node=>node.class_type==="SpectrumApplyMiniMaxH3")?"spectrum":
         Object.values(graph).some(node=>node.class_type==="MiniMaxH3MotionCache")?"motioncache":
-        loras.some(item=>item.lora_name===turboName)?"turbo":"native";
-      const signature=loras.filter(item=>item.lora_name!==turboName).map(item=>item.lora_name+":"+item.strength_model).join(",");
+        loras.some(item=>isTurbo(item.lora_name))?"turbo":"native";
+      const signature=loras.filter(item=>!isTurbo(item.lora_name)).map(item=>item.lora_name+":"+item.strength_model).join(",");
       const units=unitsFor({width:Number(inputs.width),height:Number(inputs.height),length:Number(inputs.length),
         steps:Number(sampler.inputs?.steps),mode,refSize,
         imageCount:keys.filter(key=>key.startsWith("ref_images.ref_image_")).length,
@@ -925,7 +932,7 @@ async function generate() {
     const steps=Number($("steps").value),seed=Number($("seed").value);
     if(!Number.isInteger(steps)||steps<Number($("steps").min)||steps>Number($("steps").max))throw Error("Sampling steps must be between "+$("steps").min+" and "+$("steps").max+" for this render method.");
     if(!methodAvailable(method()))throw Error("The selected render method is not installed on this ComfyUI server.");
-    if(method()==="turbo"&&state.loras.some(item=>item.enabled))throw Error("Turn off other LoRAs before Turbo. This combination is not verified yet.");
+    if(method()==="turbo"&&state.mode!=="refs"&&state.loras.some(item=>item.enabled))throw Error("Turn off other LoRAs before Turbo. This combination is not verified yet.");
     if(!Number.isSafeInteger(seed)||seed<0)throw Error("Use a valid non-negative seed.");
     for(const item of state.loras.filter(x=>x.enabled)){
       if(!Number.isFinite(item.strength)||item.strength<0||item.strength>2)throw Error("LoRA strength must be between 0 and 2.");
