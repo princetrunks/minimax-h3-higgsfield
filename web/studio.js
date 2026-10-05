@@ -71,7 +71,7 @@ function loraModeCompatible(name,mode){
   if(name===refTurboName)return mode==="refs";
   if(mode==="refs"){
     if(/^H3_Combat_V2\.safetensors$/i.test(name))return false;
-    if(/fl2v|fl2va|t2v/i.test(name)&&!/ref2v|r2v/i.test(name))return false;
+    if(/flf2v|fl2v|fl2va|t2v|orbit360/i.test(name)&&!/ref2v|r2v/i.test(name))return false;
   }else if(/ref2v|r2v/i.test(name)&&!/fl2v|t2v/i.test(name))return false;
   return true;
 }
@@ -932,7 +932,6 @@ async function generate() {
     const steps=Number($("steps").value),seed=Number($("seed").value);
     if(!Number.isInteger(steps)||steps<Number($("steps").min)||steps>Number($("steps").max))throw Error("Sampling steps must be between "+$("steps").min+" and "+$("steps").max+" for this render method.");
     if(!methodAvailable(method()))throw Error("The selected render method is not installed on this ComfyUI server.");
-    if(method()==="turbo"&&state.mode!=="refs"&&state.loras.some(item=>item.enabled))throw Error("Turn off other LoRAs before Turbo. This combination is not verified yet.");
     if(!Number.isSafeInteger(seed)||seed<0)throw Error("Use a valid non-negative seed.");
     for(const item of state.loras.filter(x=>x.enabled)){
       if(!Number.isFinite(item.strength)||item.strength<0||item.strength>2)throw Error("LoRA strength must be between 0 and 2.");
